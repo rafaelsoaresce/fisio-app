@@ -3,16 +3,16 @@ import { useState, useEffect } from 'react';
 const PLANET_COUNT = 5;
 const PLANET_DISTANCE = 150; // pixels entre cada planeta
 const PLANET_SPEED = 1; // pixels por frame
-const CAPTURE_TIME = 5000; // 5 segundos em milissegundos
-const PLANET_SPAWN_DELAY = 7000; // 7 segundos entre cada planeta
+const CAPTURE_TIME = 3000; // 5 segundos em milissegundos
+const PLANET_SPAWN_DELAY = 3000; // 7 segundos entre cada planeta
 
-// Array com os nomes dos SVGs dos planetas
+// Array com os nomes dos SVGs dos planetas (Lua por último)
 const PLANET_IMAGES = [
-  'moon.svg',
   'mars.svg',
   'jupiter.svg',
   'saturn.svg',
-  'uranus.svg'
+  'uranus.svg',
+  'moon.svg'
 ];
 
 const SpaceGame = () => {
@@ -103,7 +103,7 @@ const SpaceGame = () => {
   return (
     <div className="fixed inset-0 flex items-center justify-center">
       {/* Progresso */}
-      <div className="absolute top-4 left-4 text-white text-2xl font-bold z-10">
+      <div className="absolute top-4 left-4 text-purple-300 text-2xl font-bold z-10 font-space">
         {currentPlanet + 1}/{PLANET_COUNT}
       </div>
 
@@ -149,15 +149,19 @@ const SpaceGame = () => {
 
         {/* Game Over Screen */}
         {!gameActive && (
-          <div className="absolute inset-0 bg-black bg-opacity-75 flex items-center justify-center">
-            <div className="text-center text-white">
-              <h2 className="text-3xl font-bold mb-4">Parabéns!</h2>
-              <p className="text-xl mb-4">Você completou todos os {PLANET_COUNT} planetas!</p>
+          <div className="absolute inset-0 bg-black bg-opacity-90 flex items-center justify-center">
+            <div className="text-center text-purple-300 p-8 rounded-lg">
+              <h2 className="text-4xl md:text-5xl font-bold mb-8 font-space">
+                Missão Concluída!
+              </h2>
+              <p className="text-xl md:text-2xl text-purple-200 mb-12 font-space">
+                Você chegou à Lua! Parabéns por completar sua jornada espacial!
+              </p>
               <button
                 onClick={resetGame}
-                className="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded"
+                className="px-8 py-4 text-xl font-bold rounded-full bg-purple-400 text-purple-900 hover:bg-purple-600 hover:text-white transition-all duration-300 transform hover:scale-105 hover:shadow-lg hover:shadow-purple-500/50 font-space"
               >
-                Jogar Novamente
+                Nova Missão
               </button>
             </div>
           </div>
