@@ -1,4 +1,5 @@
 import { useEffect, useRef } from 'react';
+import SpaceGame from './SpaceGame';
 
 const CameraPage = () => {
   const videoRef = useRef(null);
@@ -38,6 +39,7 @@ const CameraPage = () => {
         playsInline
         className="w-full h-full object-cover"
       />
+      <SpaceGame />
     </div>
   );
 };
