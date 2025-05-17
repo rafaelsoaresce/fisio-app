@@ -4,7 +4,7 @@ const PLANET_COUNT = 5;
 const PLANET_DISTANCE = 150; // pixels entre cada planeta
 const PLANET_SPEED = 1; // pixels por frame
 const CAPTURE_TIME = 5000; // 5 segundos em milissegundos
-const PLANET_SPAWN_DELAY = 3000; // 3 segundos entre cada planeta
+const PLANET_SPAWN_DELAY = 7000; // 7 segundos entre cada planeta
 
 // Array com os nomes dos SVGs dos planetas
 const PLANET_IMAGES = [
@@ -16,14 +16,12 @@ const PLANET_IMAGES = [
 ];
 
 const SpaceGame = () => {
-  const [score, setScore] = useState(0);
   const [currentPlanet, setCurrentPlanet] = useState(0);
   const [planetPositions, setPlanetPositions] = useState(
     Array(PLANET_COUNT).fill(-PLANET_DISTANCE)
   );
   const [gameActive, setGameActive] = useState(true);
   const [capturing, setCapturing] = useState(false);
-  const [captureProgress, setCaptureProgress] = useState(0);
   const [activePlanets, setActivePlanets] = useState(0);
 
   // Efeito para spawnar planetas gradualmente
@@ -53,7 +51,6 @@ const SpaceGame = () => {
           // Verifica se o planeta chegou na posição do foguete
           if (Math.abs(newPos) < 10 && index === currentPlanet && !capturing) {
             setCapturing(true);
-            setCaptureProgress(0);
           }
           
           return newPos;
@@ -67,46 +64,47 @@ const SpaceGame = () => {
     return () => clearInterval(gameLoop);
   }, [currentPlanet, gameActive, capturing, activePlanets]);
 
-  // Efeito para controlar o progresso da captura
+  // Efeito para controlar o tempo de captura
   useEffect(() => {
     if (!capturing) return;
 
-    const captureInterval = setInterval(() => {
-      setCaptureProgress(prev => {
-        const newProgress = prev + (100 / (CAPTURE_TIME / 100));
+    const captureTimeout = setTimeout(() => {
+      setCapturing(false);
+      if (currentPlanet < PLANET_COUNT - 1) {
+        setCurrentPlanet(prev => prev + 1);
+      } else {
+        setGameActive(false);
+      }
+    }, CAPTURE_TIME);
 
-        if (newProgress >= 100) {
-          setCapturing(false);
-          if (currentPlanet < PLANET_COUNT - 1) {
-            setCurrentPlanet(prev => prev + 1);
-            setScore(prev => prev + 1);
-          } else {
-            setGameActive(false);
-          }
-          return 0;
-        }
-        return newProgress;
-      });
-    }, 100);
-
-    return () => clearInterval(captureInterval);
+    return () => clearTimeout(captureTimeout);
   }, [capturing, currentPlanet]);
 
   const resetGame = () => {
-    setScore(0);
     setCurrentPlanet(0);
     setPlanetPositions(Array(PLANET_COUNT).fill(-PLANET_DISTANCE));
     setGameActive(true);
     setCapturing(false);
-    setCaptureProgress(0);
     setActivePlanets(0);
+  };
+
+  // Função para calcular a opacidade baseada na posição do planeta
+  const calculateOpacity = (position, index) => {
+    if (index > currentPlanet) return 0.5; // Planetas não visitados
+    if (index < currentPlanet) return 1; // Planetas já visitados
+    
+    // Para o planeta atual, calcula a opacidade baseada na posição
+    const maxDistance = window.innerHeight / 2; // Distância máxima para o efeito
+    const distance = Math.abs(position);
+    const opacity = Math.max(0.5, 1 - (distance / maxDistance));
+    return opacity;
   };
 
   return (
     <div className="fixed inset-0 flex items-center justify-center">
-      {/* Score */}
+      {/* Progresso */}
       <div className="absolute top-4 left-4 text-white text-2xl font-bold z-10">
-        Pontos: {score}/5
+        {currentPlanet + 1}/{PLANET_COUNT}
       </div>
 
       {/* Game Area */}
@@ -115,13 +113,14 @@ const SpaceGame = () => {
         {Array.from({ length: PLANET_COUNT }).map((_, index) => (
           <div
             key={index}
-            className={`absolute w-24 h-24
-              ${index <= currentPlanet ? 'opacity-100' : 'opacity-50'}`}
+            className="absolute w-20 h-20"
             style={{
               left: '50%',
               top: `calc(50% + ${planetPositions[index]}px)`,
               transform: 'translateX(-50%)',
-              display: index < activePlanets ? 'block' : 'none'
+              display: index < activePlanets ? 'block' : 'none',
+              opacity: calculateOpacity(planetPositions[index], index),
+              transition: 'opacity 0.1s ease-in-out'
             }}
           >
             <img
@@ -129,14 +128,6 @@ const SpaceGame = () => {
               alt={`Planet ${index + 1}`}
               className="w-full h-full object-contain"
             />
-            {capturing && index === currentPlanet && (
-              <div className="absolute -bottom-6 left-0 right-0 h-2 bg-gray-700 rounded-full">
-                <div 
-                  className="h-full bg-green-500 rounded-full transition-all duration-100"
-                  style={{ width: `${captureProgress}%` }}
-                />
-              </div>
-            )}
           </div>
         ))}
 
@@ -145,7 +136,7 @@ const SpaceGame = () => {
           className="absolute w-20 h-20"
           style={{
             left: '50%',
-            top: '50%',
+            top: 'calc(80% - 50px)',
             transform: 'translate(-50%, -50%)'
           }}
         >
