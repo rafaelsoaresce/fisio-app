@@ -12,7 +12,7 @@ const CameraPage = () => {
       try {
         const mediaStream = await navigator.mediaDevices.getUserMedia({
           video: { facingMode: 'environment' }, // Preferência para câmera traseira
-          audio: true
+          audio: false
         });
         
         setStream(mediaStream);
