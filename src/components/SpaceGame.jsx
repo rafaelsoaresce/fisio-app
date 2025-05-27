@@ -15,7 +15,7 @@ const PLANET_IMAGES = [
   'moon.svg'
 ];
 
-const SpaceGame = ({ onGameComplete }) => {
+const SpaceGame = ({ onGameComplete, onNewMission }) => {
   const [currentPlanet, setCurrentPlanet] = useState(0);
   const [planetPositions, setPlanetPositions] = useState(
     Array(PLANET_COUNT).fill(-PLANET_DISTANCE)
@@ -87,6 +87,7 @@ const SpaceGame = ({ onGameComplete }) => {
     setGameActive(true);
     setCapturing(false);
     setActivePlanets(0);
+    onNewMission?.(); // Chama a função quando uma nova missão começa
   };
 
   // Função para calcular a opacidade baseada na posição do planeta

@@ -7,36 +7,6 @@ const CameraPage = () => {
   const mediaRecorderRef = useRef(null);
   const chunksRef = useRef([]);
 
-  useEffect(() => {
-    const startCamera = async () => {
-      try {
-        const mediaStream = await navigator.mediaDevices.getUserMedia({
-          video: { facingMode: 'environment' }, // Preferência para câmera traseira
-          audio: false
-        });
-        
-        setStream(mediaStream);
-        if (videoRef.current) {
-          videoRef.current.srcObject = mediaStream;
-        }
-
-        // Iniciar gravação automaticamente
-        startRecording(mediaStream);
-      } catch (error) {
-        console.error('Erro ao acessar a câmera:', error);
-      }
-    };
-
-    startCamera();
-
-    // Cleanup function
-    return () => {
-      if (stream) {
-        stream.getTracks().forEach(track => track.stop());
-      }
-    };
-  }, []);
-
   const startRecording = (mediaStream) => {
     chunksRef.current = [];
     const mediaRecorder = new MediaRecorder(mediaStream);
@@ -82,9 +52,46 @@ const CameraPage = () => {
     mediaRecorder.start();
   };
 
+  useEffect(() => {
+    const startCamera = async () => {
+      try {
+        const mediaStream = await navigator.mediaDevices.getUserMedia({
+          video: { facingMode: 'environment' }, // Preferência para câmera traseira
+          audio: false
+        });
+        
+        setStream(mediaStream);
+        if (videoRef.current) {
+          videoRef.current.srcObject = mediaStream;
+        }
+
+        // Iniciar gravação automaticamente
+        startRecording(mediaStream);
+      } catch (error) {
+        console.error('Erro ao acessar a câmera:', error);
+      }
+    };
+
+    startCamera();
+
+    // Cleanup function
+    return () => {
+      if (stream) {
+        stream.getTracks().forEach(track => track.stop());
+      }
+    };
+  }, []);
+
   const handleGameComplete = () => {
     if (mediaRecorderRef.current) {
       mediaRecorderRef.current.stop();
+    }
+  };
+
+  const handleNewMission = () => {
+    // Reiniciar a gravação com o stream existente
+    if (stream) {
+      startRecording(stream);
     }
   };
 
@@ -96,7 +103,10 @@ const CameraPage = () => {
         playsInline
         className="w-full h-full object-cover"
       />
-      <SpaceGame onGameComplete={handleGameComplete} />
+      <SpaceGame 
+        onGameComplete={handleGameComplete}
+        onNewMission={handleNewMission}
+      />
     </div>
   );
 };
