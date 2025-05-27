@@ -15,7 +15,7 @@ const PLANET_IMAGES = [
   'moon.svg'
 ];
 
-const SpaceGame = () => {
+const SpaceGame = ({ onGameComplete }) => {
   const [currentPlanet, setCurrentPlanet] = useState(0);
   const [planetPositions, setPlanetPositions] = useState(
     Array(PLANET_COUNT).fill(-PLANET_DISTANCE)
@@ -62,7 +62,7 @@ const SpaceGame = () => {
 
     const gameLoop = setInterval(movePlanets, 16); // ~60fps
     return () => clearInterval(gameLoop);
-  }, [currentPlanet, gameActive, capturing, activePlanets]);
+  }, [gameActive, currentPlanet, capturing, activePlanets]);
 
   // Efeito para controlar o tempo de captura
   useEffect(() => {
@@ -74,11 +74,12 @@ const SpaceGame = () => {
         setCurrentPlanet(prev => prev + 1);
       } else {
         setGameActive(false);
+        onGameComplete?.(); // Chama a função quando o jogo termina
       }
     }, CAPTURE_TIME);
 
     return () => clearTimeout(captureTimeout);
-  }, [capturing, currentPlanet]);
+  }, [capturing, currentPlanet, onGameComplete]);
 
   const resetGame = () => {
     setCurrentPlanet(0);
